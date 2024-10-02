@@ -1,0 +1,28 @@
+from flask import Flask, request, render_template, redirect
+import os
+import numpy as np
+import cv2
+from tensorflow.keras.models import load_model
+import joblib
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads/'
+cnn_model = load_model("C:\Users\DELL\OneDrive\Desktop\java ass\app2.npy.py")
+@app.route('/')
+def index():
+    return render_template('index.html', risk=None)
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        return redirect(request.url)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+    file.save(filepath)
+    sample_genomic = [...] # Replace with actual genomic data logic
+    image = cv2.imread(filepath)
+    risk = predict_risk(image, sample_genomic)
+    return render_template('index.html', risk=risk)
+if __name__ == '__main__':
+    app.run(debug=True)
